@@ -2,6 +2,7 @@
 
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.enums import ParseMode
 from config import ADMINS
 from database.mongo import db
 from bot.force_sub import check_force_sub
@@ -55,4 +56,4 @@ async def help_command(client: Client, message: Message):
         "✅ To receive media, you must join the required channels.\n"
         "🎁 Share your referral link to earn bonus media."
     )
-    await message.reply_text(HELP_TEXT, parse_mode="html")
+    await message.reply_text(HELP_TEXT, parse_mode=ParseMode.HTML)
