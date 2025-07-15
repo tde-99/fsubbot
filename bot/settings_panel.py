@@ -13,14 +13,9 @@ async def open_settings_panel(client: Client, message: Message):
 
     rows = [
         [InlineKeyboardButton("📢 Set Media Channel", callback_data="setmediachannel")],
-        [InlineKeyboardButton("📦 Set Media Count", callback_data="setmedia")],
         [InlineKeyboardButton("💬 Set Caption", callback_data="setcaption")],
         [InlineKeyboardButton("🔘 Set Buttons", callback_data="setbuttons")],
         [InlineKeyboardButton("ℹ️ Set Info Button", callback_data="setinfobutton")],
-        [InlineKeyboardButton("🕒 Set Auto-Delete", callback_data="setdelay")],
-        [InlineKeyboardButton("⏳ Set Cooldown (hrs)", callback_data="setcooldown")],
-        [InlineKeyboardButton("🎁 Set Referral Reward", callback_data="setrefreward")],
-        [InlineKeyboardButton("🚫 Set Referral Cap", callback_data="setrefcap")],
         [InlineKeyboardButton("🛑 Toggle Strict Mode", callback_data="togglestrict")],
         [InlineKeyboardButton("👥 Manage Force-Sub Channels", callback_data="managefs")],
         [InlineKeyboardButton("📊 View Stats", callback_data="dostats")],

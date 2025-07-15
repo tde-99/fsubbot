@@ -66,12 +66,7 @@ async def admin_callbacks(client: Client, cb: CallbackQuery):
         await cb.message.delete()
         setting = data.split("set")[1]
 
-        if setting == "media":
-            msg = await client.ask(cb.message.chat.id, "Forward media to me to set the media pool.")
-            if msg.media:
-                await db.add_media(msg.id)
-                await msg.reply("✅ Media added to pool.")
-        elif setting == "caption":
+        if setting == "caption":
             msg = await client.ask(cb.message.chat.id, "Send me the new caption.")
             await db.set_setting("caption", msg.text)
             await msg.reply("✅ Caption has been set.")
@@ -83,26 +78,6 @@ async def admin_callbacks(client: Client, cb: CallbackQuery):
             msg = await client.ask(cb.message.chat.id, "Send me the new info button in the correct format.")
             await db.set_setting("infobutton", msg.text)
             await msg.reply("✅ Info button set.")
-        elif setting == "delay":
-            msg = await client.ask(cb.message.chat.id, "Send me the new delay in minutes.")
-            if msg.text.isdigit():
-                await db.set_setting("delete_delay", int(msg.text))
-                await msg.reply(f"✅ Auto-delete delay set to {msg.text} minutes")
-        elif setting == "cooldown":
-            msg = await client.ask(cb.message.chat.id, "Send me the new cooldown in hours.")
-            if msg.text.isdigit():
-                await db.set_setting("cooldown_hours", int(msg.text))
-                await msg.reply(f"✅ Cooldown time set to {msg.text} hours")
-        elif setting == "refreward":
-            msg = await client.ask(cb.message.chat.id, "Send me the new referral reward.")
-            if msg.text.isdigit():
-                await db.set_setting("ref_bonus", int(msg.text))
-                await msg.reply(f"✅ Referral reward set to {msg.text} media per user")
-        elif setting == "refcap":
-            msg = await client.ask(cb.message.chat.id, "Send me the new referral cap.")
-            if msg.text.isdigit():
-                await db.set_setting("ref_cap", int(msg.text))
-                await msg.reply(f"✅ Referral cap set to {msg.text} media")
         elif setting == "mediachannel":
             msg = await client.ask(cb.message.chat.id, "Forward a message from the media channel.")
             if msg.forward_from_chat:

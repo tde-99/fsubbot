@@ -73,14 +73,13 @@ class MongoDB:
         user = await self.db.users.find_one({"_id": user_id}) or {}
         return user.get("referrals", 0)
 
-    async def get_available_bonus(self, user_id: int):
-        settings = await self.get_settings()
-        cap = settings.get("ref_cap", 0)
-        reward = settings.get("ref_bonus", 0)
-        total_refs = await self.get_referral_count(user_id)
-        used = (await self.db.users.find_one({"_id": user_id}) or {}).get("bonus_used", 0)
-        available = min(cap, total_refs * reward) - used
-        return max(available, 0)
+from config import REFERRAL_CAP, REFERRAL_REWARD
+
+async def get_available_bonus(self, user_id: int):
+    total_refs = await self.get_referral_count(user_id)
+    used = (await self.db.users.find_one({"_id": user_id}) or {}).get("bonus_used", 0)
+    available = min(REFERRAL_CAP, total_refs * REFERRAL_REWARD) - used
+    return max(available, 0)
 
     async def use_bonus_media(self, user_id: int):
         available = await self.get_available_bonus(user_id)

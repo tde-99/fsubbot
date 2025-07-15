@@ -4,18 +4,19 @@ import random, asyncio
 from pyromod import Client
 from database.mongo import db
 
+from config import COOLDOWN_HOURS, DELETE_DELAY
+
 async def deliver_media(client: Client, user_id: int, chat_id: int):
     settings = await db.get_settings()
-    cooldown = settings.get("cooldown_hours", 0)
-    delete_delay = settings.get("delete_delay", 0)
 
     # ⏳ Cooldown Check
-    if not await db.can_access(user_id, cooldown):
-        wait = await db.cooldown_remaining(user_id, cooldown)
+    if not await db.can_access(user_id, COOLDOWN_HOURS):
+        wait = await db.cooldown_remaining(user_id, COOLDOWN_HOURS)
         return await client.send_message(chat_id, f"⏳ Please wait {wait} before requesting more media.")
 
     # 🎞 Media Config
-    count = settings.get("media_count", 1)
+    from config import MEDIA_COUNT
+    count = MEDIA_COUNT
     caption = settings.get("caption", "")
     buttons = await db.parse_buttons(settings.get("buttons", ""))
     media_pool = await db.get_media_pool()
@@ -41,8 +42,8 @@ async def deliver_media(client: Client, user_id: int, chat_id: int):
                 caption=caption,
                 reply_markup=buttons
             )
-            if delete_delay > 0:
-                asyncio.create_task(delete_after(client, sent.chat.id, sent.id, delete_delay * 60))
+            if DELETE_DELAY > 0:
+                asyncio.create_task(delete_after(client, sent.chat.id, sent.id, DELETE_DELAY * 60))
         except Exception as e:
             print(f"[ERROR] Failed to send media ID {msg_id}: {e}")
             continue
