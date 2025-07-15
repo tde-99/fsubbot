@@ -26,6 +26,7 @@ async def open_settings_panel(client: Client, message: Message):
         [InlineKeyboardButton("📊 View Stats", callback_data="dostats")],
         [InlineKeyboardButton("🧪 Preview Media", callback_data="dopreview")],
         [InlineKeyboardButton("♻️ Reset Media", callback_data="resetmedia")],
+        [InlineKeyboardButton("❓ Help", callback_data="help")],
         [InlineKeyboardButton("🔙 Close", callback_data="close")]
     ]
 
