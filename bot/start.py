@@ -34,4 +34,25 @@ async def start_command(client: Client, message: Message):
     # Deliver media if allowed
     delivered = await deliver_media(client, user_id, message.chat.id)
     if not delivered:
-        await message.reply("✅ You're subscribed! Come back later for more media.")
+        if user_id in ADMINS:
+            await message.reply(
+                "✅ You're subscribed! Come back later for more media.",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⚙️ Open Settings", callback_data="settings")]])
+            )
+        else:
+            await message.reply("✅ You're subscribed! Come back later for more media.")
+
+@Client.on_message(filters.command("help") & filters.private)
+async def help_command(client: Client, message: Message):
+    HELP_TEXT = (
+        "<b>🛠 Bot Commands & Help</b>\n\n"
+        "<b>/start</b> - Begin interaction with the bot\n"
+        "<b>/help</b> - Show this help message\n"
+        "<b>/refer</b> - Get your referral link\n"
+        "<b>/bonus</b> - Claim your referral bonus\n"
+        "<b>/settings</b> - Customize bot behavior (admin only)\n"
+        "<b>/stats</b> - View bot usage stats (admin only)\n\n"
+        "✅ To receive media, you must join the required channels.\n"
+        "🎁 Share your referral link to earn bonus media."
+    )
+    await message.reply_text(HELP_TEXT, parse_mode="html")
