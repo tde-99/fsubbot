@@ -1,6 +1,7 @@
 # bot/callbacks.py
 
-from pyrogram import Client, filters
+from pyromod import Client
+from pyrogram import filters
 from pyrogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from config import ADMINS
 from database.mongo import db
@@ -54,7 +55,7 @@ async def admin_callbacks(client: Client, cb: CallbackQuery):
         msg_id = random.choice(media)
         caption = settings.get("caption", "")
         buttons = await db.parse_buttons(settings.get("buttons", ""))
-        await client.copy_message(cb.message.chat.id, media_channel, msg_id, caption=caption, reply_markup=buttons, parse_mode="html")
+        await client.copy_message(cb.message.chat.id, media_channel, msg_id, caption=caption, reply_markup=buttons)
 
     elif data == "resetmedia":
         await db.reset_media_pool()
