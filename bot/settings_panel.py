@@ -2,6 +2,7 @@
 
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.enums import ParseMode
 from config import ADMINS
 from database.mongo import db
 
@@ -46,4 +47,4 @@ async def open_settings_panel(client: Client, message: Message):
         "🔙 <b>Close</b> — Exit this panel\n"
     )
 
-    await message.reply(text, reply_markup=InlineKeyboardMarkup(rows), parse_mode="html")
+    await message.reply(text, reply_markup=InlineKeyboardMarkup(rows), parse_mode=ParseMode.HTML)
