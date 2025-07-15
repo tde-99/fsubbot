@@ -1,6 +1,7 @@
 # bot/start.py
 
-from pyrogram import Client, filters
+from pyromod import Client
+from pyrogram import filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ParseMode
 from config import ADMINS
@@ -28,8 +29,7 @@ async def start_command(client: Client, message: Message):
     if not passed:
         return await message.reply(
             "🔒 <b>Join required channels to use this bot.</b>",
-            reply_markup=markup,
-            parse_mode="html"
+            reply_markup=markup
         )
 
     # Deliver media if allowed

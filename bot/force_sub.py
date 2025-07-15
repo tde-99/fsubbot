@@ -1,6 +1,6 @@
 # bot/force_sub.py
 
-from pyrogram import Client
+from pyromod import Client
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from database.mongo import db
 

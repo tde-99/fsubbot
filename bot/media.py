@@ -1,7 +1,7 @@
 # bot/media.py
 
 import random, asyncio
-from pyrogram import Client
+from pyromod import Client
 from database.mongo import db
 
 async def deliver_media(client: Client, user_id: int, chat_id: int):
@@ -39,7 +39,6 @@ async def deliver_media(client: Client, user_id: int, chat_id: int):
                 media_channel,
                 msg_id,
                 caption=caption,
-                parse_mode="html",
                 reply_markup=buttons
             )
             if delete_delay > 0:

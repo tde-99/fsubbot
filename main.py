@@ -1,7 +1,9 @@
 # main.py
 
 import asyncio
-from pyrogram import Client, idle
+from pyrogram import idle
+from pyromod import Client
+import pyromod.listen
 from database.mongo import db
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton

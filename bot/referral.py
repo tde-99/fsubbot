@@ -1,6 +1,7 @@
 # bot/referral.py
 
-from pyrogram import Client, filters
+from pyromod import Client
+from pyrogram import filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from database.mongo import db
 import asyncio
@@ -26,7 +27,7 @@ async def refer_command(client: Client, message: Message):
     button = InlineKeyboardMarkup([
         [InlineKeyboardButton("📢 Share Now", url=share_url)]
     ])
-    await message.reply(reply_text, reply_markup=button, parse_mode="html")
+    await message.reply(reply_text, reply_markup=button)
 
 
 @Client.on_message(filters.command("bonus") & filters.private)
@@ -56,7 +57,6 @@ async def claim_bonus(client: Client, message: Message):
                 from_chat_id=media_channel,
                 message_id=msg_id,
                 caption=caption,
-                parse_mode="html",
                 reply_markup=buttons
             )
             if delete_delay > 0:

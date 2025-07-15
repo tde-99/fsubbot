@@ -1,6 +1,7 @@
 # bot/admin_commands.py
 
-from pyrogram import Client, filters
+from pyromod import Client
+from pyrogram import filters
 from pyrogram.types import Message
 from config import ADMINS
 from database.mongo import db
