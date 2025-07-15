@@ -66,3 +66,7 @@ A Telegram bot built with Pyrogram + MongoDB that enforces force-subscription, d
 ```bash
 git clone https://github.com/yourusername/force-sub-referral-bot.git
 cd force-sub-referral-bot
+pip install -r requirements.txt
+python main.py
+
+
