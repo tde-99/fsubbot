@@ -10,33 +10,39 @@ async def deliver_media(client: Client, user_id: int, chat_id: int):
     cooldown = settings.get("cooldown_hours", 0)
     delete_delay = settings.get("delete_delay", 0)
 
-    # Check cooldown
+    # ⏳ Cooldown Check
     if not await db.can_access(user_id, cooldown):
         wait = await db.cooldown_remaining(user_id, cooldown)
-        return await client.send_message(chat_id, f"⏳ Wait {wait} before next access.")
+        return await client.send_message(chat_id, f"⏳ Please wait {wait} before requesting more media.")
 
-    # Get total media limit
+    # 🎞 Media Config
     count = settings.get("media_count", 1)
     caption = settings.get("caption", "")
     buttons = await db.parse_buttons(settings.get("buttons", ""))
     media_pool = await db.get_media_pool()
 
     if not media_pool:
-        return await client.send_message(chat_id, "⚠️ No media available yet.")
+        return await client.send_message(chat_id, "⚠️ No media available yet. Please try again later.")
 
+    # 🎲 Random Media Selection
     selected = random.sample(media_pool, min(len(media_pool), count))
     await db.set_last_access(user_id)
 
+    # 📤 Send Media One-by-One
     for msg_id in selected:
         try:
             sent = await client.copy_message(
-                chat_id, MEDIA_CHANNEL, msg_id,
-                caption=caption, parse_mode="html",
+                chat_id,
+                MEDIA_CHANNEL,
+                msg_id,
+                caption=caption,
+                parse_mode="html",
                 reply_markup=buttons
             )
             if delete_delay > 0:
                 asyncio.create_task(delete_after(client, sent.chat.id, sent.id, delete_delay * 60))
-        except:
+        except Exception as e:
+            print(f"[ERROR] Failed to send media ID {msg_id}: {e}")
             continue
     return True
 
