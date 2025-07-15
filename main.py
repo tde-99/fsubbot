@@ -63,9 +63,8 @@ async def main():
         scheduler.start()
 
         print("Bot is running...")
-        await Bot.start()
-        await idle()
-        await Bot.stop()
+        async with Bot:
+            await idle()
     else:
         print("Bot token, API ID, or API hash is not configured. Exiting.")
 
