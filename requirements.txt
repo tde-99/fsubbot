@@ -1,5 +1,6 @@
+motor==3.3.1
+pymongo==3.12.3
 pyrogram==2.0.106
 tgcrypto
-motor==3.3.1
 apscheduler==3.10.1
 python-dotenv
