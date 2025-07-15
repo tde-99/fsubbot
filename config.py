@@ -1,8 +1,15 @@
 # config.py
 
-API_ID = 123456  # Replace with your API ID
-API_HASH = "your_api_hash"
-BOT_TOKEN = "your_bot_token"
-MONGO_URI = "your_mongodb_uri"
-ADMINS = [123456789]  # Replace with your Telegram user ID(s)
-MEDIA_CHANNEL = -1001234567890  # Replace with your media channel ID
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_ID = int(os.getenv("API_ID"))
+API_HASH = os.getenv("API_HASH")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+MONGO_URI = os.getenv("MONGO_URI")
+ADMINS = list(map(int, os.getenv("ADMINS", "").split()))
+
+MEDIA_CHANNEL = int(os.getenv("MEDIA_CHANNEL"))
