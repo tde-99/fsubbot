@@ -3,3 +3,4 @@ motor
 apscheduler
 python-dotenv
 pyromod
+nest_asyncio

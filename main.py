@@ -1,6 +1,7 @@
 # main.py
 
 import asyncio
+import nest_asyncio
 from pyrogram import idle
 from pyromod import Client
 import pyromod.listen
@@ -72,4 +73,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    nest_asyncio.apply()
     asyncio.run(main())
