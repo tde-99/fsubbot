@@ -3,6 +3,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from database.mongo import db
+import asyncio
 
 @Client.on_message(filters.command("refer") & filters.private)
 async def refer_command(client: Client, message: Message):
@@ -31,26 +32,42 @@ async def refer_command(client: Client, message: Message):
 @Client.on_message(filters.command("bonus") & filters.private)
 async def claim_bonus(client: Client, message: Message):
     user_id = message.from_user.id
-    caption = (await db.get_settings()).get("caption", "")
-    buttons = await db.parse_buttons((await db.get_settings()).get("buttons", ""))
+    settings = await db.get_settings()
+    media_channel = settings.get("media_channel")
 
-    bonus_msgs = await db.use_bonus_media(user_id)
-    if not bonus_msgs:
-        return await message.reply("❌ No bonus media available. Invite others to earn bonus.")
+    if not media_channel:
+        return await message.reply("⚠️ Media channel not set. Please contact an admin.")
 
-    for msg_id in bonus_msgs:
+    bonus_media_ids = await db.use_bonus_media(user_id)
+
+    if not bonus_media_ids:
+        return await message.reply("🎁 You have no bonus media to claim.")
+
+    await message.reply(f"🎉 You have claimed {len(bonus_media_ids)} bonus media! They will be sent shortly.")
+
+    for msg_id in bonus_media_ids:
+        caption = settings.get("caption", "")
+        buttons = await db.parse_buttons(settings.get("buttons", ""))
+        delete_delay = settings.get("delete_delay", 0)
+
         try:
             sent = await client.copy_message(
-                message.chat.id,
-                from_chat_id=(await db.get_settings()).get("media_channel", -100),
+                chat_id=user_id,
+                from_chat_id=media_channel,
                 message_id=msg_id,
                 caption=caption,
                 parse_mode="html",
                 reply_markup=buttons
             )
-            delay = (await db.get_settings()).get("delete_delay", 0)
-            if delay:
-                await asyncio.sleep(delay * 60)
-                await client.delete_messages(sent.chat.id, sent.id)
-        except:
+            if delete_delay > 0:
+                asyncio.create_task(delete_after(client, sent.chat.id, sent.id, delete_delay * 60))
+        except Exception as e:
+            print(f"[ERROR] Failed to send bonus media ID {msg_id}: {e}")
             continue
+
+async def delete_after(client: Client, chat_id: int, message_id: int, delay: int):
+    await asyncio.sleep(delay)
+    try:
+        await client.delete_messages(chat_id, message_id)
+    except:
+        pass

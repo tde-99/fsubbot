@@ -2,7 +2,6 @@
 
 import random, asyncio
 from pyrogram import Client
-from config import MEDIA_CHANNEL
 from database.mongo import db
 
 async def deliver_media(client: Client, user_id: int, chat_id: int):
@@ -28,12 +27,16 @@ async def deliver_media(client: Client, user_id: int, chat_id: int):
     selected = random.sample(media_pool, min(len(media_pool), count))
     await db.set_last_access(user_id)
 
+    media_channel = settings.get("media_channel")
+    if not media_channel:
+        return await client.send_message(chat_id, "⚠️ Media channel not set. Please contact an admin.")
+
     # 📤 Send Media One-by-One
     for msg_id in selected:
         try:
             sent = await client.copy_message(
                 chat_id,
-                MEDIA_CHANNEL,
+                media_channel,
                 msg_id,
                 caption=caption,
                 parse_mode="html",

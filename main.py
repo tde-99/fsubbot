@@ -1,15 +1,32 @@
 # main.py
 
 import asyncio
-from pyrogram import idle
-from bot import Bot
+from pyrogram import Client, idle
 from database.mongo import db
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from config import API_ID, API_HASH, BOT_TOKEN
+
+if API_ID and API_HASH and BOT_TOKEN:
+    Bot = Client(
+        "ForceSubReferralBot",
+        api_id=API_ID,
+        api_hash=API_HASH,
+        bot_token=BOT_TOKEN,
+        plugins=dict(root="bot")
+    )
+else:
+    Bot = None
 
 async def send_referral_reminders():
+    if Bot is None:
+        return
     users = await db.get_all_users()
-    bot_username = (await Bot.get_me()).username
+    try:
+        bot_username = (await Bot.get_me()).username
+    except Exception as e:
+        print(f"Error getting bot username: {e}")
+        return
 
     for user in users:
         user_id = user["_id"]
@@ -33,20 +50,25 @@ async def send_referral_reminders():
 
         try:
             await Bot.send_message(user_id, text, reply_markup=button, parse_mode="html")
-        except:
+        except Exception as e:
+            print(f"Failed to send reminder to {user_id}: {e}")
             continue
 
 async def main():
-    await Bot.start()
     await db.connect()
 
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(send_referral_reminders, "interval", hours=8)
-    scheduler.start()
+    if Bot:
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(send_referral_reminders, "interval", hours=8)
+        scheduler.start()
 
-    print("Bot is running...")
-    await idle()
-    await Bot.stop()
+        print("Bot is running...")
+        await Bot.start()
+        await idle()
+        await Bot.stop()
+    else:
+        print("Bot token, API ID, or API hash is not configured. Exiting.")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

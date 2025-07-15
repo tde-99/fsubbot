@@ -5,72 +5,43 @@ from pyrogram.types import Message
 from config import ADMINS
 from database.mongo import db
 
-# Set number of media to deliver per user
-@Client.on_message(filters.command("setmedia") & filters.user(ADMINS))
-async def set_media_count(client: Client, message: Message):
+@Client.on_message(filters.command("adminhelp") & filters.user(ADMINS))
+async def admin_help(client: Client, message: Message):
+    await message.reply(
+        "<b>Admin Commands:</b>\n\n"
+        "/settings - Open the settings panel\n"
+        "/stats - View bot stats\n"
+        "/resetuser <user_id> - Reset a user's data\n"
+        "/topref - Show top referrers"
+    )
+
+@Client.on_message(filters.command("stats") & filters.user(ADMINS))
+async def stats(client: Client, message: Message):
+    users = await db.get_all_users()
+    media = await db.get_media_pool()
+    await message.reply(
+        f"👥 Total Users: {len(users)}\n"
+        f"📦 Media Count: {len(media)}"
+    )
+
+@Client.on_message(filters.command("resetuser") & filters.user(ADMINS))
+async def reset_user(client: Client, message: Message):
     args = message.text.split()
     if len(args) != 2 or not args[1].isdigit():
-        return await message.reply("Usage: /setmedia 5")
-    await db.set_setting("media_count", int(args[1]))
-    await message.reply(f"✅ Media count set to {args[1]}")
+        return await message.reply("Usage: /resetuser <user_id>")
 
-# Set delete delay in minutes
-@Client.on_message(filters.command("setdelay") & filters.user(ADMINS))
-async def set_delete_delay(client: Client, message: Message):
-    args = message.text.split()
-    if len(args) != 2 or not args[1].isdigit():
-        return await message.reply("Usage: /setdelay 10")
-    await db.set_setting("delete_delay", int(args[1]))
-    await message.reply(f"✅ Auto-delete delay set to {args[1]} minutes")
+    user_id = int(args[1])
+    await db.db.users.update_one({"_id": user_id}, {"$set": {"referrals": 0, "bonus_used": 0, "last_access": None}})
+    await message.reply(f"✅ User {user_id} has been reset.")
 
-# Set caption (HTML allowed)
-@Client.on_message(filters.command("setcaption") & filters.user(ADMINS))
-async def set_caption(client: Client, message: Message):
-    if len(message.text.split(None, 1)) < 2:
-        return await message.reply("Usage: /setcaption <HTML formatted caption>")
-    caption = message.text.split(None, 1)[1]
-    await db.set_setting("caption", caption)
-    await message.reply("✅ Caption has been set.")
+@Client.on_message(filters.command("topref") & filters.user(ADMINS))
+async def top_referrers(client: Client, message: Message):
+    users = await db.db.users.find({"referrals": {"$gt": 0}}).sort("referrals", -1).limit(10).to_list(length=10)
+    if not users:
+        return await message.reply("No referrers yet.")
 
-# Set inline buttons format
-@Client.on_message(filters.command("setbuttons") & filters.user(ADMINS))
-async def set_buttons(client: Client, message: Message):
-    if len(message.text.split(None, 1)) < 2:
-        return await message.reply("Usage: /setbuttons\nButton1=URL1 | Button2=URL2\nButton3=URL3")
-    await db.set_setting("buttons", message.text.split(None, 1)[1])
-    await message.reply("✅ Buttons saved.")
+    text = "<b>🏆 Top 10 Referrers:</b>\n\n"
+    for i, user in enumerate(users):
+        text += f"{i+1}. {user['_id']} - {user['referrals']} referrals\n"
 
-# Optional bottom info/help button
-@Client.on_message(filters.command("setinfobutton") & filters.user(ADMINS))
-async def set_info_button(client: Client, message: Message):
-    if len(message.text.split(None, 1)) < 2 or "=" not in message.text:
-        return await message.reply("Usage: /setinfobutton Text=https://example.com")
-    await db.set_setting("infobutton", message.text.split(None, 1)[1])
-    await message.reply("✅ Info button set.")
-
-# Set referral bonus (media per referral)
-@Client.on_message(filters.command("setrefreward") & filters.user(ADMINS))
-async def set_referral_reward(client: Client, message: Message):
-    args = message.text.split()
-    if len(args) != 2 or not args[1].isdigit():
-        return await message.reply("Usage: /setrefreward 2")
-    await db.set_setting("ref_bonus", int(args[1]))
-    await message.reply(f"✅ Referral reward set to {args[1]} media per user")
-
-# Set cap on referral rewards
-@Client.on_message(filters.command("setrefcap") & filters.user(ADMINS))
-async def set_referral_cap(client: Client, message: Message):
-    args = message.text.split()
-    if len(args) != 2 or not args[1].isdigit():
-        return await message.reply("Usage: /setrefcap 20")
-    await db.set_setting("ref_cap", int(args[1]))
-    await message.reply(f"✅ Referral cap set to {args[1]} media")
-
-# Set hours between user accesses
-@Client.on_message(filters.command("setcooldown") & filters.user(ADMINS))
-async def set_cooldown(client: Client, message: Message):
-    args = message.text.split()
-    if len(args) != 2 or not args[1].isdigit():
-        return await message.reply("Usage: /setcooldown 8")
-    await db.set_setting("cooldown_hours", int(args[1]))
-    await message.reply(f"✅ Cooldown time set to {args[1]} hours")
+    await message.reply(text)

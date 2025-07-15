@@ -10,6 +10,7 @@ async def open_settings_panel(client: Client, message: Message):
     settings = await db.get_settings()
 
     rows = [
+        [InlineKeyboardButton("📢 Set Media Channel", callback_data="setmediachannel")],
         [InlineKeyboardButton("📦 Set Media Count", callback_data="setmedia")],
         [InlineKeyboardButton("💬 Set Caption", callback_data="setcaption")],
         [InlineKeyboardButton("🔘 Set Buttons", callback_data="setbuttons")],

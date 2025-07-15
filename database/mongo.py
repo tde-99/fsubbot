@@ -90,7 +90,7 @@ class MongoDB:
         if not pool: return []
 
         from random import sample
-        selected = sample(pool, min(len(pool), available))
+        selected = sample(pool, min(len(pool), int(available)))
         await self.db.users.update_one({"_id": user_id}, {"$inc": {"bonus_used": len(selected)}})
         return selected
 
