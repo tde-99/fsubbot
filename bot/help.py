@@ -1,6 +1,7 @@
 # bot/help.py
 
 from pyrogram import Client, filters
+from pyrogram.types import Message
 
 HELP_TEXT = (
     "<b>🛠 Bot Commands & Help</b>\n\n"
@@ -15,5 +16,5 @@ HELP_TEXT = (
 )
 
 @Client.on_message(filters.command("help") & filters.private)
-async def help_handler(client: Client, message: Message):
+async def help_handler(client: Client, message):
     await message.reply_text(HELP_TEXT, parse_mode="html")
